@@ -30,7 +30,7 @@ LAST_SEND = time.time()
 
 # Command to get response.
 def send_get(cmd, param = {}):
-    json_d = {"devkey":DEV_KEY, "apiusr":USR, "apikey":API_KEY, "apicall":cmd}.copy()
+    json_d = {"devkey":DEV_KEY, "apiuser":USR, "apikey":API_KEY, "apicall":cmd}.copy()
     json_d.update(param)
     print json_d
     return json.loads(requests.get(URL, params = json_d).text)

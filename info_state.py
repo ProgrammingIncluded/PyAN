@@ -1,6 +1,6 @@
 # File to hold info_state
-import command as cmd
 import connect as cnt
+import command as cmd
 import progressbar
 
 from datetime import datetime
@@ -9,15 +9,6 @@ INFO = {}
 
 LAST_FETCH = datetime.now()
 
-# High Chat Check
-# Two Conditions for checking chat to be more than normal.
-# A Message was recently sent.
-# Inactively over HCC_INACT. 
-# Once HCC starts, chat checks every HCC_CHAT_PERIOD.
-HCC = False
-HCC_INACT = 30 # 30 seconds.
-HCC_CHAT_PERIOD = 1
-NON_HCC_CHAT_PERIOD = 3
 
 # Progress bar
 bar = progressbar.ProgressBar(redirect_stdout = True)
@@ -26,7 +17,6 @@ bar = progressbar.ProgressBar(redirect_stdout = True)
 def set_state():
     # Call first to get info.
     update_state()
-    display_state()
 
 def update_state():
     # Prepare the info state by getting necessary info.
@@ -39,14 +29,19 @@ def update_state():
         LAST_FETCH = datetime.now()
 
 # Call function to draw
-# TODO: Make more efficient by calling print only once.
 def display_state():
-    cmd.clear()
     cur = INFO["nowPlayingSong"]
     print_song_data(cur)
     delta = datetime.now() - LAST_FETCH
     perc = 100.0 - ((float(INFO["timeLeft"]) - delta.total_seconds()) * 100.0 / float(cur["totalseconds"]))
+    if perc > 100.0:
+        perc = 100.0
+    elif perc < 0.0:
+        perc = 0.0
     bar.update(perc)
+
+    
+    
 
 def print_song_data(song_info):
     res = "Title: " + str(song_info["title"]) + "\n"
