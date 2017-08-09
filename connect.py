@@ -6,8 +6,6 @@ import time
 import ConfigParser
 import json
 
-import chat as ch
-
 # Constants #
 URL = "https://www.animenfo.com/radio/api.php"
 TOKEN_FILE = "token.txt"
