@@ -1,3 +1,6 @@
+# Prevent Special Token From Being Pushed to Cloud
+token.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
