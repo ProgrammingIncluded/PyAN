@@ -31,10 +31,7 @@ def set_state():
 def update_state():
     try:
         global CUR_BUF
-        ib.INPUT_LOCK.acquire()
-        CUR_BUF += ib.INPUT_BUFFER
-        ib.INPUT_BUFFER = ""
-        ib.INPUT_LOCK.release()
+        CUR_BUF += ib.INPUT_BUFFER.get(False)
     except:
         pass
     

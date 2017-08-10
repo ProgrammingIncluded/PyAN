@@ -7,7 +7,7 @@ import command as cmd
 
 import sys,codecs
 import time
-import threading
+import multiprocessing
 import traceback
 
 def main():
@@ -15,7 +15,8 @@ def main():
     sys.stderr = codecs.getwriter('utf8')(sys.stderr)
 
     # Prep input thread
-    input_thread = threading.Thread(target = inp.input_read)
+    #input_thread = multiprocessing.Process(target = inp.input_read)
+    input_thread = inp.IBP
     input_thread.start()
     chat.set_state()
 
@@ -33,7 +34,6 @@ def main():
             # Clear the terminal for next display
             cmd.clear()
             chat.display_state()
-            time.sleep(0.1)
         except:
             # Flush all prints
             sys.stdout.flush()
@@ -43,6 +43,7 @@ def main():
     pg.PROGRAM_FLAG_LOCK.acquire()
     pg.PROGRAM_CLOSE = True
     pg.PROGRAM_FLAG_LOCK.release()
+    input_thread.shutdown()
     input_thread.join()
 
 

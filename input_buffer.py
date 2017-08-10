@@ -1,37 +1,42 @@
 import program_global as pg
 import getch
-import threading
 import sys, traceback
-import Queue
+import multiprocessing
 
-INPUT_BUFFER = ""
-INPUT_LOCK = threading.Lock()
+INPUT_BUFFER = multiprocessing.Queue()
 
-# Function for reading input
-def input_read():
-    while True:
-        try:
-            # Exit loop
-            pg.PROGRAM_FLAG_LOCK.acquire()
-            if pg.PROGRAM_CLOSE:
+class InputBuffer(multiprocessing.Process):
+
+    def __init__(self, buffer):
+        multiprocessing.Process.__init__(self)
+        self.exit = multiprocessing.Event()
+        self.buffer = buffer
+
+    # Function for reading input
+    def run(self):
+        while not self.exit.is_set():
+            try:
+                # Exit loop
+                pg.PROGRAM_FLAG_LOCK.acquire()
+                if pg.PROGRAM_CLOSE:
+                    pg.PROGRAM_FLAG_LOCK.release()
+                    break
                 pg.PROGRAM_FLAG_LOCK.release()
-                break
-            pg.PROGRAM_FLAG_LOCK.release()
-            
-            char = getch.getch()
-            if ord(char) == 3:
-                break
+                
+                char = getch.getch()
+                if ord(char) == 3:
+                    break
+                else:
+                    self.buffer.put(char, False)
 
-            global INPUT_BUFFER
-            INPUT_LOCK.acquire()
-            INPUT_BUFFER += char
-            INPUT_LOCK.release()
-        except:
-            # Early kill.
-            # sys.stdout.flush()
-            # traceback.print_exc()
-            break
+            except:
+                # Early kill.
+                # sys.stdout.flush()
+                # traceback.print_exc()
+                continue
 
-    pg.PROGRAM_FLAG_LOCK.acquire()
-    pg.PROGRAM_CLOSE = True
-    pg.PROGRAM_FLAG_LOCK.release()
+    def shutdown(self):
+        self.exit.set()
+
+
+IBP = InputBuffer(INPUT_BUFFER)
