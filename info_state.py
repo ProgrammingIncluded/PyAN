@@ -1,17 +1,16 @@
 # File to hold info_state
+import chat_state as cs
 import connect as cnt
 import command as cmd
-import progressbar
 
 from datetime import datetime
 
 INFO = {}
 
 LAST_FETCH = datetime.now()
+LAST_PRINT = datetime.now()
 
 
-# Progress bar
-bar = progressbar.ProgressBar(redirect_stdout = True)
 
 # Call function to setup state.
 def set_state():
@@ -30,15 +29,20 @@ def update_state():
 
 # Call function to draw
 def display_state():
-    cur = INFO["nowPlayingSong"]
-    print_song_data(cur)
-    delta = datetime.now() - LAST_FETCH
-    perc = 100.0 - ((float(INFO["timeLeft"]) - delta.total_seconds()) * 100.0 / float(cur["totalseconds"]))
-    if perc > 100.0:
-        perc = 100.0
-    elif perc < 0.0:
-        perc = 0.0
-    bar.update(perc)
+    delta = datetime.now() - LAST_PRINT
+    if delta.total_seconds() > 3:
+        cur = INFO["nowPlayingSong"]
+        print_song_data(cur)
+        delta = datetime.now() - LAST_FETCH
+        perc = 100.0 - ((float(INFO["timeLeft"]) - delta.total_seconds()) * 100.0 / float(cur["totalseconds"]))
+        if perc > 100.0:
+            perc = 100.0
+        elif perc < 0.0:
+            perc = 0.0
+        
+        cmd.print_buf("Percent: " + str(perc) + "%\n\n")
+        # Bad coding habits but, eh
+        cs.CHANG = True
 
     
     
@@ -48,4 +52,4 @@ def print_song_data(song_info):
     res += "Album: " + str(song_info["album"]) + "\n"
     res += "Artist: " + str(song_info["artist"]) + "\n"
     res += "Comp: " + str(song_info["composers"]) + "\n"
-    print res
+    cmd.print_buf(res)

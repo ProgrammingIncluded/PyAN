@@ -25,6 +25,12 @@ def on_press(key):
     if key == Key.space:
         INPUT_BUFFER.put(" ", False)
         return
+    elif key == Key.backspace:
+        cs.delete_back()
+        return
+    elif key == Key.delete:
+        cs.delete_forward()
+        return
     elif key == Key.shift or key == Key.shift_l or key == Key.shift_r:
         SHIFT = True
         return

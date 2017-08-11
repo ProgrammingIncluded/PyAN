@@ -52,6 +52,21 @@ def move_start():
     CURSOR = 0
     CHANG = True
 
+def delete_back():
+    global CURSOR
+    if CURSOR != 0:
+        global CUR_BUF
+        CUR_BUF = CUR_BUF[0:CURSOR - 1] + CUR_BUF[CURSOR:]
+        CURSOR -= 1
+
+def delete_forward():
+    global CURSOR
+    if CURSOR != len(CUR_BUF):
+        global CUR_BUF
+        CUR_BUF = CUR_BUF[0:CURSOR] + CUR_BUF[CURSOR+1:]
+
+
+
 def set_state():
     # Get the first 50 chat data.
     global CHAT_DATA
@@ -78,6 +93,7 @@ def update_state():
             else:
                 CUR_BUF = CUR_BUF[0:CURSOR] + ib.INPUT_BUFFER.get(False) + CUR_BUF[CURSOR:]
         CHANG = True
+    # CHANG = True
 
 def display_state():
     global CHANG

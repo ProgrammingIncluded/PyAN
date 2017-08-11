@@ -15,14 +15,18 @@ def main():
     sys.stderr = codecs.getwriter('utf8')(sys.stderr)
 
     with inp.Listener(on_press = inp.on_press, on_release = inp.on_release) as listener:
-        chat.set_state()
+        display = [infs, chat]
+        for mod in display:
+            mod.set_state()
 
         # chat.set_state()
         while True:
             try:
-                chat.update_state()
-                # Clear the terminal for next display
-                chat.display_state()
+                for mod in display:
+                    mod.update_state()
+                    # Clear the terminal for next display
+                    mod.display_state()
+                time.sleep(0.01)
                 cmd.display_buffer()
             except:
                 # Flush all prints
