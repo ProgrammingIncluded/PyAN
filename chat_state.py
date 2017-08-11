@@ -23,7 +23,34 @@ MAX_DISPLAY = 10
 
 # Value to store text buffer
 CUR_BUF = ""
+
+# From left to right
+CURSOR = 0
+
 CHANG = True
+
+def move_cursor(x):
+    global CURSOR
+    if CURSOR + x < 0:
+        CURSOR = 0
+    elif CURSOR + x > len(CUR_BUF):
+        CURSOR = len(CUR_BUF)
+    else:
+        CURSOR += x
+    global CHANG
+    CHANG = True
+
+def move_end():
+    global CURSOR
+    global CHANG
+    CURSOR = len(CUR_BUF)
+    CHANG = True
+
+def move_start():
+    global CURSOR
+    global CHANG
+    CURSOR = 0
+    CHANG = True
 
 def set_state():
     # Get the first 50 chat data.
@@ -44,7 +71,12 @@ def update_state():
         global CHANG
         global CUR_BUF
         while not ib.INPUT_BUFFER.empty():
-            CUR_BUF += ib.INPUT_BUFFER.get(False)
+            global CURSOR
+            if CURSOR == len(CUR_BUF):
+                CURSOR += 1
+                CUR_BUF += ib.INPUT_BUFFER.get(False)
+            else:
+                CUR_BUF = CUR_BUF[0:CURSOR] + ib.INPUT_BUFFER.get(False) + CUR_BUF[CURSOR:]
         CHANG = True
 
 def display_state():
@@ -52,7 +84,7 @@ def display_state():
     if CHANG:
         CHANG = False
         print_buf(DISPLAY_BUF)
-        print_buf("> : " + CUR_BUF)
+        print_buf("> : " + CUR_BUF[0:CURSOR] + "|" + CUR_BUF[CURSOR:])
 
 def add_chat(usr, chat):
     if len(CHAT_DATA) >= MAX_CHAT:

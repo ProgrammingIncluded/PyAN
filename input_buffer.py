@@ -1,4 +1,5 @@
 import command as cmd
+import chat_state as cs
 import Queue
 from pynput.keyboard import Key, Listener
 
@@ -22,23 +23,35 @@ def on_press(key):
 
     # Check if there is anything regarding spaces
     if key == Key.space:
-        INPUT_BUFFER.put(" ")
+        INPUT_BUFFER.put(" ", False)
         return
     elif key == Key.shift or key == Key.shift_l or key == Key.shift_r:
         SHIFT = True
         return
     elif key == Key.up:
-        cmd.CURSOR = (cmd.CURSOR[0] - 1, cmd.CURSOR[1])
-        print "\x1b[%d; %dH" % cmd.CURSOR
+        return
+    elif key == Key.down:
+        return
+    elif key == Key.right:
+        cs.move_cursor(1)
+        return
+    elif key == Key.left:
+        cs.move_cursor(-1)
+        return
+    elif key == Key.home:
+        cs.move_start()
+        return
+    elif key == Key.end:
+        cs.move_end()
         return
 
     try:
         if SHIFT:
-            INPUT_BUFFER.put(key_map(key.char))
+            INPUT_BUFFER.put(key_map(key.char), False)
         else:
-            INPUT_BUFFER.put(key.char)
+            INPUT_BUFFER.put(key.char, False)
     except:
-        INPUT_BUFFER.put("*")
+        INPUT_BUFFER.put("*", False)
 
 def on_release(key):
     if key == Key.shift or key == Key.shift_l or key == Key.shift_r:

@@ -1,11 +1,9 @@
 # File to Work with Platform Dependent Commandline Interfacing
 
-from colorama import init
 import os
 import subprocess
 
 clear = None
-init()
 
 if os.name in ('linux', 'osx', 'posix'):
     clear = lambda: subprocess.call("clear")
@@ -20,7 +18,6 @@ def printfunc():
 # String Buffer.
 BUF = u""
 CALLED = False
-CURSOR = (0, 0)
 
 # Custom overriden print for buffer optimization.
 def print_buf(val):
@@ -31,15 +28,12 @@ def print_buf(val):
     
 
 def display_buffer():
+    global CALLED
     if CALLED:
         global BUF
-        global CALLED
         CALLED = False
         clear()
         print BUF
         BUF = u""
-        # Reposition cursor
-        print "\x1b[%d; %dH" % CURSOR
-    
 
     
