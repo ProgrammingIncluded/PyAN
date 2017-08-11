@@ -1,9 +1,11 @@
 # File to Work with Platform Dependent Commandline Interfacing
 
+from colorama import init
 import os
 import subprocess
 
 clear = None
+init()
 
 if os.name in ('linux', 'osx', 'posix'):
     clear = lambda: subprocess.call("clear")
@@ -12,5 +14,36 @@ elif os.name in ('nt','dos'):
 else:
     clear = printfunc
 
+def move(y, x):
+    global CURSOR
+    CURSOR = (y, x)
+
 def printfunc():
     print "\n" * 120
+
+# String Buffer.
+BUF = u""
+CALLED = False
+CURSOR = (0, -1)
+
+# Custom overriden print for buffer optimization.
+def print_buf(val):
+    global BUF
+    global CALLED
+    CALLED = True
+    BUF += val + u"\n"
+    
+
+def display_buffer():
+    if CALLED:
+        global BUF
+        global CALLED
+        CALLED = False
+        clear()
+        print BUF
+        BUF = u""
+        # Reposition cursor
+        print "\x1b[%d; %dH" % CURSOR
+    
+
+    
