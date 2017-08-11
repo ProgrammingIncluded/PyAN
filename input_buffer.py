@@ -1,62 +1,93 @@
-import program_global as pg
-import getch
-import sys, traceback
-from multiprocessing import Process, RLock, Event, Pipe
-from threading import Thread
-from ctypes import c_wchar_p
+import command as cmd
+import Queue
+from pynput.keyboard import Key, Listener
 
-class InputBuffer(Process):
 
-    def __init__(self, pipe):
-        Process.__init__(self)
-        self.exit = Event()
-        self.pipe_in, self.pipe_out = pipe
+INPUT_BUFFER = Queue.Queue()
+LOCK = False
+SHIFT = False
 
-    # Function for reading input
-    def run(self):
-        while not self.exit.is_set():
-            try:
-                char = getch.getch()
-                order = ord(char)
-                if order == 3:
-                    break
-                elif order > 127 or order < 0:
-                    print order
-                    continue
-                else:
-                    self.pipe_out.send(char) 
+def on_press(key):
+    global INPUT_BUFFER
+    global LOCK
+    global SHIFT
 
-            except:
-                # Early kill.
-                # sys.stdout.flush()
-                # traceback.print_exc()
-                break
+    # Listen to Fx keys.
+    if key == Key.f1:
+        LOCK = ~LOCK
+        return
 
-    def shutdown(self):
-        self.pipe_out.close()
-        self.exit.set()
+    if LOCK:
+        return
 
-INPUT_BUFFER = ""
-INPUT_LOCK = RLock()
-INPUT_PIPE = Pipe()
+    # Check if there is anything regarding spaces
+    if key == Key.space:
+        INPUT_BUFFER.put(" ")
+        return
+    elif key == Key.shift or key == Key.shift_l or key == Key.shift_r:
+        SHIFT = True
+        return
+    elif key == Key.up:
+        cmd.CURSOR = (cmd.CURSOR[0] - 1, cmd.CURSOR[1])
+        print "\x1b[%d; %dH" % cmd.CURSOR
+        return
 
-# Thread needed for listening to input from another process.
-class InputListener(Thread):
-    def __init__(self, pipe):
-        Thread.__init__(self)
-        self.exit = Event()
-        self.pipe_in, self.pipe_out = pipe
-    
-    def run(self):
-        while not self.exit.is_set():
-            try:
-                global INPUT_BUFFER
-                INPUT_BUFFER += self.pipe_in.recv()
-            except:
-                break
+    try:
+        if SHIFT:
+            INPUT_BUFFER.put(key_map(key.char))
+        else:
+            INPUT_BUFFER.put(key.char)
+    except:
+        INPUT_BUFFER.put("*")
 
-    def shutdown(self):
-        self.exit.set()
+def on_release(key):
+    if key == Key.shift or key == Key.shift_l or key == Key.shift_r:
+        global SHIFT
+        SHIFT = False
 
-IBP = InputBuffer(INPUT_PIPE)
-IBT = InputListener(INPUT_PIPE)
+def key_map(val):
+    # Check if keys are special.
+    if val == "1":
+        return  "!"
+    elif val == "2":
+        return  "@"
+    elif val == "3":
+        return  "#"
+    elif val == "4":
+        return  "$"
+    elif val == "5":
+        return  "%"
+    elif val == "6":
+        return  "^"
+    elif val == "7":
+        return  "&"
+    elif val == "8":
+        return  "*"
+    elif val == "9":
+        return  "("
+    elif val == "0":
+        return  ")"
+    elif val == "-":
+        return  "_"
+    elif val == "=":
+        return  "+"
+    elif val == "`":
+        return  "~"
+    elif val == ";":
+        return  ":"
+    elif val == "'":
+        return  '"'
+    elif val == ",":
+        return  '<'
+    elif val == ".":
+        return  '>'
+    elif val == "/":
+        return  '?'
+    elif val == "[":
+        return  '{'
+    elif val == "]":
+        return  '}'
+    elif val == "\\":
+        return  '|'
+    else:
+        return val.upper()

@@ -40,10 +40,11 @@ def set_state():
         DISPLAY_BUF += elm["message"] + u"\n"   
     
 def update_state():
-    global CUR_BUF
-    if CUR_BUF != ib.INPUT_BUFFER:
+    if not ib.INPUT_BUFFER.empty():
         global CHANG
-        CUR_BUF = ib.INPUT_BUFFER
+        global CUR_BUF
+        while not ib.INPUT_BUFFER.empty():
+            CUR_BUF += ib.INPUT_BUFFER.get(False)
         CHANG = True
 
 def display_state():
@@ -51,8 +52,7 @@ def display_state():
     if CHANG:
         CHANG = False
         print_buf(DISPLAY_BUF)
-        val = ib.INPUT_BUFFER
-        print_buf("> : " + val)
+        print_buf("> : " + CUR_BUF)
 
 def add_chat(usr, chat):
     if len(CHAT_DATA) >= MAX_CHAT:

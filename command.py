@@ -14,24 +14,20 @@ elif os.name in ('nt','dos'):
 else:
     clear = printfunc
 
-def move(y, x):
-    global CURSOR
-    CURSOR = (y, x)
-
 def printfunc():
     print "\n" * 120
 
 # String Buffer.
 BUF = u""
 CALLED = False
-CURSOR = (0, -1)
+CURSOR = (0, 0)
 
 # Custom overriden print for buffer optimization.
 def print_buf(val):
     global BUF
     global CALLED
     CALLED = True
-    BUF += val + u"\n"
+    BUF += val
     
 
 def display_buffer():
