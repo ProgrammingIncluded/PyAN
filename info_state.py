@@ -10,6 +10,8 @@ INFO = {}
 LAST_FETCH = datetime.now()
 LAST_PRINT = datetime.now()
 
+PREV_PERC = 0.0
+
 
 
 # Call function to setup state.
@@ -27,11 +29,14 @@ def update_state():
         # Use manual sending because we only want to get info when we need it.
         INFO = cnt.send_get("now-playing")
         LAST_FETCH = datetime.now()
+        cmd.CALLED = True
 
 # Call function to draw
 def display_state():
-    delta = datetime.now() - LAST_PRINT
-    if delta.total_seconds() > 3:
+    global LAST_PRINT
+
+    # We need to check CALLED because other states may have drawn
+    if cmd.CALLED or ((datetime.now() - LAST_PRINT).total_seconds() > 1):
         cur = INFO["nowPlayingSong"]
         print_song_data(cur)
         delta = datetime.now() - LAST_FETCH
@@ -41,9 +46,8 @@ def display_state():
         elif perc < 0.0:
             perc = 0.0
         
-        cmd.print_buf("Percent: " + str(perc) + "%\n\n")
-        # Bad coding habits but, eh
-        cs.CHANG = True
+        cmd.print_buf("Percent: " + str(int(perc)) + "%\n\n")
+        LAST_PRINT = datetime.now()
 
     
     

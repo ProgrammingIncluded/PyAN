@@ -9,7 +9,6 @@ INPUT_BUFFER = queue.Queue()
 LOCK = False
 SHIFT = False
 
-
 def on_press(key):
     global INPUT_BUFFER
     global LOCK
@@ -26,6 +25,9 @@ def on_press(key):
     # Check if there is anything regarding spaces
     if key == Key.space:
         INPUT_BUFFER.put(" ", False)
+        return
+    elif key == Key.enter:
+        cs.clear()
         return
     elif key == Key.backspace:
         cs.delete_back()
@@ -65,6 +67,7 @@ def on_release(key):
     if key == Key.shift or key == Key.shift_l or key == Key.shift_r:
         global SHIFT
         SHIFT = False
+    cmd.CALLED = True
     cmd.flush_input()
 
 

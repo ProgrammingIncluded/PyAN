@@ -2,15 +2,19 @@
 
 import os
 import subprocess
+import threading as thr
 
 clear = None
 
 if os.name in ('linux', 'osx', 'posix'):
-    clear = lambda: subprocess.call("clear")
+    def clear():
+        subprocess.call("clear")
 elif os.name in ('nt','dos'):
-    clear = lambda: os.system("cls")
+    def clear():
+        os.system("cls")
 else:
-    clear = printfunc
+    def clear():
+        printfunc()
 
 
 if os.name in ('linux', 'osx', 'posix'):

@@ -14,7 +14,7 @@ import asyncio
 from contextlib import suppress
 
 # Keep track of FPS
-FPS = 60.0
+FPS = 1200.0
 ELP = datetime.now()
 
 async def main():
@@ -26,31 +26,39 @@ async def main():
         # chat.set_state()
         while True:
             try:
+                # Update all states first
                 for mod in display:
                     mod.update_state()
-                    # Clear the terminal for next display
+                
+                # Prepare all states for displaying.
+                for mod in display:
                     mod.display_state()
+
                 cmd.display_buffer()
+
+                # Dispatch for async.
+                global ELP
+                later = datetime.now()
+                diff = (later - ELP).total_seconds()
+                if diff < (1/FPS):
+                    await asyncio.sleep((1/FPS) - diff)
+                else:
+                    await asyncio.sleep(0)
+                ELP = datetime.now()
+
+
             except:
                 # Flush all prints
                 sys.stdout.flush()
                 traceback.print_exc()
                 break
 
-            # Dispatch for async.
-            global ELP
-            later = datetime.now()
-            diff = (later - ELP).total_seconds()
-            if diff < (1/FPS):
-                await asyncio.sleep(1/FPS - diff)
-            else:
-                await asyncio.sleep(0)
-
         pg.PROGRAM_CLOSE = True
         
     listener.join()
 
 if __name__ == '__main__':
+    # Start the main loop with async manager.
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
 

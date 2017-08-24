@@ -1,6 +1,7 @@
 import input_buffer as ib
 import connect as cnt
 from command import print_buf
+import command as cmd
 
 import asyncio
 from datetime import datetime
@@ -8,9 +9,13 @@ from aiohttp import ClientSession
 import json
 
 # File to handle chats.
-# For now, very simple handling and flushing of chat.
+# Keeps track of new chat data, currently written chat info,
+# as well as submitting chat to server.
+# Right tightly coupled with input_buffer in order to allow proper processing
+# of input. input_buffer calls chat_state functions directly.
 
-# High Chat Check
+# TODO: High Chat Check
+# Feature to allow checking of chat to be based of need, not fixed rate.
 # Two Conditions for checking chat to be more than normal.
 # A Message was recently sent.
 # Inactively over HCC_INACT. 
@@ -32,8 +37,6 @@ CUR_BUF = ""
 # From left to right
 CURSOR = 0
 
-CHANG = True
-
 LAST_SEND = datetime.now()
 
 def move_cursor(x):
@@ -44,35 +47,44 @@ def move_cursor(x):
         CURSOR = len(CUR_BUF)
     else:
         CURSOR += x
-    global CHANG
-    CHANG = True
+    cmd.CALLED = True
 
 def move_end():
     global CURSOR
-    global CHANG
     CURSOR = len(CUR_BUF)
     CHANG = True
 
 def move_start():
     global CURSOR
-    global CHANG
     CURSOR = 0
-    CHANG = True
+    cmd.CALLED = True
 
+# Function to delete backward in the input chat state.
 def delete_back():
     global CURSOR
     if CURSOR != 0:
         global CUR_BUF
         CUR_BUF = CUR_BUF[0:CURSOR - 1] + CUR_BUF[CURSOR:]
         CURSOR -= 1
+        cmd.CALLED = True
 
+# Function to delete forward in the input chat state.
 def delete_forward():
     global CURSOR
     global CUR_BUF
     if CURSOR != len(CUR_BUF):
         CUR_BUF = CUR_BUF[0:CURSOR] + CUR_BUF[CURSOR+1:]
+        cmd.CALLED = True
 
-def update_chat_screen():
+# Function to clear the input of the chat state.
+def clear():
+    global CURSOR
+    global CUR_BUF
+    CURSOR = 0
+    CUR_BUF = ""
+    cmd.CALLED = True
+
+async def update_chat_screen():
     global CHAT_DATA
     global DISPLAY_BUF
     DISPLAY_BUF = ""
@@ -82,6 +94,8 @@ def update_chat_screen():
             break
         count += 1
         DISPLAY_BUF += elm["time"] + " "+ str(elm["userId"]) + "> " + ascii(elm["message"])[1:-1] + "\n"   
+
+    cmd.CALLED = True
 
 async def chat_update_task():
     # Do all chates under one session
@@ -105,7 +119,7 @@ async def chat_update_task():
                 CHAT_DATA = json.loads(response_t)
 
                 # Since chat data changed, we want to update the screen.
-                update_chat_screen()
+                await update_chat_screen()
 
 def set_state():
     # Get the first 50 chat data.
@@ -131,13 +145,17 @@ def update_state():
                 CUR_BUF += ib.INPUT_BUFFER.get(False)
             else:
                 CUR_BUF = CUR_BUF[0:CURSOR] + ib.INPUT_BUFFER.get(False) + CUR_BUF[CURSOR:]
+        # Set global flag to let all states know we will update screen.
         CHANG = True
+        cmd.CALLED = True
     # CHANG = True
 
 def display_state():
+    # Chang is used for chat state internally if someone does input
+    # CHANG is set true. Howvever, if an external state draws, 
+    # we also need to dump our state to display, so cmd.called is also checked.
     global CHANG
-    if CHANG:
-        CHANG = False
+    if cmd.CALLED:
         print_buf(DISPLAY_BUF)
         print_buf("> : " + CUR_BUF[0:CURSOR] + "|" + CUR_BUF[CURSOR:])
 
