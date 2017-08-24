@@ -16,7 +16,7 @@ def on_press(key):
     global SHIFT
 
     # Listen to Fx keys.
-    if key == Key.f11:
+    if key == Key.f12:
         LOCK = ~LOCK
         return
 

@@ -6,11 +6,16 @@ import input_buffer as inp
 import command as cmd
 
 import sys,codecs
+from datetime import datetime
 import time
 import multiprocessing
 import traceback
 import asyncio
 from contextlib import suppress
+
+# Keep track of FPS
+FPS = 60.0
+ELP = datetime.now()
 
 async def main():
     with inp.Listener(on_press = inp.on_press, on_release = inp.on_release) as listener:
@@ -25,13 +30,21 @@ async def main():
                     mod.update_state()
                     # Clear the terminal for next display
                     mod.display_state()
-                time.sleep(0.001)
                 cmd.display_buffer()
             except:
                 # Flush all prints
                 sys.stdout.flush()
                 traceback.print_exc()
                 break
+
+            # Dispatch for async.
+            global ELP
+            later = datetime.now()
+            diff = (later - ELP).total_seconds()
+            if diff < (1/FPS):
+                await asyncio.sleep(1/FPS - diff)
+            else:
+                await asyncio.sleep(0)
 
         pg.PROGRAM_CLOSE = True
         
