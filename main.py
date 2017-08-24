@@ -9,11 +9,10 @@ import sys,codecs
 import time
 import multiprocessing
 import traceback
+import asyncio
+from contextlib import suppress
 
-def main():
-    sys.stdout = codecs.getwriter('utf8')(sys.stdout)
-    sys.stderr = codecs.getwriter('utf8')(sys.stderr)
-
+async def main():
     with inp.Listener(on_press = inp.on_press, on_release = inp.on_release) as listener:
         display = [infs, chat]
         for mod in display:
@@ -26,7 +25,7 @@ def main():
                     mod.update_state()
                     # Clear the terminal for next display
                     mod.display_state()
-                time.sleep(0.01)
+                time.sleep(0.001)
                 cmd.display_buffer()
             except:
                 # Flush all prints
@@ -39,4 +38,12 @@ def main():
     listener.join()
 
 if __name__ == '__main__':
-    main()
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
+
+    # Clean up tasks
+    pending = asyncio.Task.all_tasks()
+    for task in pending:
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            loop.run_until_complete(task)

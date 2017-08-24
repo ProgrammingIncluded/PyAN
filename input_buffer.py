@@ -1,12 +1,14 @@
 import command as cmd
 import chat_state as cs
-import Queue
+import queue
+import sys
 from pynput.keyboard import Key, Listener
 
 
-INPUT_BUFFER = Queue.Queue()
+INPUT_BUFFER = queue.Queue()
 LOCK = False
 SHIFT = False
+
 
 def on_press(key):
     global INPUT_BUFFER
@@ -14,7 +16,7 @@ def on_press(key):
     global SHIFT
 
     # Listen to Fx keys.
-    if key == Key.f1:
+    if key == Key.f11:
         LOCK = ~LOCK
         return
 
@@ -63,6 +65,8 @@ def on_release(key):
     if key == Key.shift or key == Key.shift_l or key == Key.shift_r:
         global SHIFT
         SHIFT = False
+    cmd.flush_input()
+
 
 def key_map(val):
     # Check if keys are special.

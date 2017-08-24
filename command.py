@@ -12,11 +12,22 @@ elif os.name in ('nt','dos'):
 else:
     clear = printfunc
 
+
+if os.name in ('linux', 'osx', 'posix'):
+    import curses
+    def flush_input():
+        curses.flushinp()
+else:
+    import msvcrt
+    def flush_input():
+        while msvcrt.kbhit():
+            msvcrt.getch()
+
 def printfunc():
-    print "\n" * 120
+    print("\n" * 120)
 
 # String Buffer.
-BUF = u""
+BUF = ""
 CALLED = False
 
 # Custom overriden print for buffer optimization.
@@ -33,7 +44,7 @@ def display_buffer():
         global BUF
         CALLED = False
         clear()
-        print BUF
-        BUF = u""
+        print(BUF)
+        BUF = ""
 
     

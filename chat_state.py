@@ -2,6 +2,10 @@ import input_buffer as ib
 import connect as cnt
 from command import print_buf
 
+import asyncio
+from datetime import datetime
+from aiohttp import ClientSession
+
 # File to handle chats.
 # For now, very simple handling and flushing of chat.
 
@@ -12,11 +16,11 @@ from command import print_buf
 # Once HCC starts, chat checks every HCC_CHAT_PERIOD.
 HCC = False
 HCC_INACT = 30 # 30 seconds.
-HCC_CHAT_PERIOD = 1
+HCC_CHAT_PERIOD = 2
 NON_HCC_CHAT_PERIOD = 3
 
 CHAT_DATA = []
-DISPLAY_BUF = u""
+DISPLAY_BUF = ""
 
 MAX_CHAT = 1000
 MAX_DISPLAY = 10
@@ -28,6 +32,8 @@ CUR_BUF = ""
 CURSOR = 0
 
 CHANG = True
+
+LAST_SEND = datetime.now()
 
 def move_cursor(x):
     global CURSOR
@@ -65,6 +71,31 @@ def delete_forward():
         global CUR_BUF
         CUR_BUF = CUR_BUF[0:CURSOR] + CUR_BUF[CURSOR+1:]
 
+async def chat_update_task():
+    # Do all chates under one session
+    async with ClientSession() as session:
+        # Keep sending responses
+        while True:
+            # Calculate time elapsed before next send.
+            global LAST_SEND
+            later = datetime.now()
+            diff = (later - LAST_SEND).total_seconds()
+            if diff >= HCC_CHAT_PERIOD:
+                LAST_SEND = datetime.now()
+            else:
+                await asyncio.sleep(HCC_CHAT_PERIOD - diff)
+            
+            param = cnt.PARAM
+            param["apicall"] = "chatbox"
+            param["limit"] = 50
+            async with session.get(cnt.URL, params = param) as response:
+                response = await response.read()
+                global CHAT_DATA
+                CHAT_DATA = response
+                print_buf(CHAT_DATA)
+
+            
+
 
 
 def set_state():
@@ -72,14 +103,18 @@ def set_state():
     global CHAT_DATA
     CHAT_DATA = cnt.send_get("chatbox", {"limit":50})
     global DISPLAY_BUF
-    DISPLAY_BUF = u""
+    DISPLAY_BUF = ""
 
     count = 0
     for elm in CHAT_DATA["messages"]:
         if count >= MAX_DISPLAY:
             break
         count += 1
-        DISPLAY_BUF += elm["message"] + u"\n"   
+        DISPLAY_BUF += elm["message"] + "\n"   
+    
+    # Set up chat update task.
+    asyncio.ensure_future(chat_update_task())
+
     
 def update_state():
     if not ib.INPUT_BUFFER.empty():
@@ -102,7 +137,3 @@ def display_state():
         print_buf(DISPLAY_BUF)
         print_buf("> : " + CUR_BUF[0:CURSOR] + "|" + CUR_BUF[CURSOR:])
 
-def add_chat(usr, chat):
-    if len(CHAT_DATA) >= MAX_CHAT:
-        CHAT_DATA.pop(0)
-    CHAT_DATA.append((usr, chat))

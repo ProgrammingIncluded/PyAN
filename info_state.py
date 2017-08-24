@@ -24,6 +24,7 @@ def update_state():
     global INFO
     delta = datetime.now() - LAST_FETCH
     if "nowPlayingSong" not in INFO or float(INFO["timeLeft"]) <= delta.total_seconds():
+        # Use manual sending because we only want to get info when we need it.
         INFO = cnt.send_get("now-playing")
         LAST_FETCH = datetime.now()
 

@@ -1,13 +1,15 @@
 # File incharge of establishing connection and communicating with server.
 
+import asyncio
 import requests
 import threading
 import time
-import ConfigParser
+import configparser
 import json
 
 # Constants #
 URL = "https://www.animenfo.com/radio/api.php"
+PARAM = {}
 TOKEN_FILE = "token.txt"
 USR = "PUT IN TOKEN_FILE"
 DEV_KEY = "PUT IN TOKEN_FILE"
@@ -20,24 +22,24 @@ ACTION_CNT = 0
 # Cooldown time, i.e. API limit request (seconds).
 TIME_WAIT = 1
 
-# Var to check last sent command.
-LAST_SEND = time.time()
-
 # Lock in charge of time resource.
 # TIME_L = Lock()
 
 # Command to get response.
-def send_get(cmd, param = {}):
-    json_d = {"devkey":DEV_KEY, "apiuser":USR, "apikey":API_KEY, "apicall":cmd}.copy()
+# Repeat_time to set timeout before next call.
+def send_get(cmd, param = {}, repeat_time = -1):
+    json_d = PARAM.copy()
+    json_d["apicall"] = cmd
     json_d.update(param)
-    print json_d
+    print(json_d)
     return json.loads(requests.get(URL, params = json_d).text)
 
-def send_post(cmd, param):
+
+def send_post(cmd, param, repeat_time = -1):
     pass
 
 def parseToken():
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(TOKEN_FILE)
     global USR
     global DEV_KEY
@@ -49,5 +51,6 @@ def parseToken():
 
 # Parse the token file and get data.
 parseToken()
+PARAM = {"devkey":DEV_KEY, "apiuser":USR, "apikey":API_KEY}
 
 # Function to unlock flag.
