@@ -1,4 +1,12 @@
-# File to Work with Platform Dependent Commandline Interfacing
+
+#############################################
+# Project: PyAN
+# File: command.py
+# By: SuperKaitoKid
+# Website: superkaitokid.github.io
+# Desc: File to work with platform dependent
+#       commands.
+#############################################
 
 import os
 import subprocess

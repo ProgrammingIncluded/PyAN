@@ -1,3 +1,11 @@
+############################################
+# Project: PyAN
+# File: chat_state.py
+# By: SuperKaitoKid
+# Website: superkaitokid.github.io
+# Desc: File to hold chat screen and logic.
+############################################
+
 import input_buffer as ib
 import connect as cnt
 from command import print_buf
@@ -39,6 +47,11 @@ CURSOR = 0
 
 LAST_SEND = datetime.now()
 
+####################################
+#      Chat Exposed Functions      #
+####################################
+
+# Function to move the cursor by offset
 def move_cursor(x):
     global CURSOR
     if CURSOR + x < 0:
@@ -49,11 +62,13 @@ def move_cursor(x):
         CURSOR += x
     cmd.CALLED = True
 
+# Function to move the cursor to the end.
 def move_end():
     global CURSOR
     CURSOR = len(CUR_BUF)
     CHANG = True
 
+# Funciton to move the cursor to the start.
 def move_start():
     global CURSOR
     CURSOR = 0
@@ -84,6 +99,56 @@ def clear():
     CUR_BUF = ""
     cmd.CALLED = True
 
+#
+
+
+# Constructor like function to initiate the state. Called only once per state init.
+def set_state():
+    # Get the first 50 chat data.
+    global CHAT_DATA
+    CHAT_DATA = cnt.send_get("chatbox", {"limit":50})
+    global DISPLAY_BUF
+    DISPLAY_BUF = ""
+
+    update_chat_screen()
+
+    # Set up chat update task.
+    asyncio.ensure_future(chat_update_task())
+
+# Update state function called before display.    
+def update_state():
+    if not ib.INPUT_BUFFER.empty():
+        global CHANG
+        global CUR_BUF
+        while not ib.INPUT_BUFFER.empty():
+            global CURSOR
+            if CURSOR == len(CUR_BUF):
+                CURSOR += 1
+                CUR_BUF += ib.INPUT_BUFFER.get(False)
+            else:
+                CUR_BUF = CUR_BUF[0:CURSOR] + ib.INPUT_BUFFER.get(False) + CUR_BUF[CURSOR:]
+        # Set global flag to let all states know we will update screen.
+        CHANG = True
+        cmd.CALLED = True
+    # CHANG = True
+
+# Display state function called after update. Write to buffer.
+def display_state():
+    # Chang is used for chat state internally if someone does input
+    # CHANG is set true. Howvever, if an external state draws, 
+    # we also need to dump our state to display, so cmd.called is also checked.
+    global CHANG
+    if cmd.CALLED:
+        print_buf(DISPLAY_BUF)
+        print_buf("> : " + CUR_BUF[0:CURSOR] + "|" + CUR_BUF[CURSOR:])
+
+####################################
+# Helper Functions and Subroutines #
+####################################
+
+
+# Function to update the chat screen.
+# Called by chat_update_task so requires async.
 async def update_chat_screen():
     global CHAT_DATA
     global DISPLAY_BUF
@@ -97,6 +162,8 @@ async def update_chat_screen():
 
     cmd.CALLED = True
 
+
+# Background task to continue to update the commandline.
 async def chat_update_task():
     # Do all chates under one session
     async with ClientSession() as session:
@@ -120,42 +187,4 @@ async def chat_update_task():
 
                 # Since chat data changed, we want to update the screen.
                 await update_chat_screen()
-
-def set_state():
-    # Get the first 50 chat data.
-    global CHAT_DATA
-    CHAT_DATA = cnt.send_get("chatbox", {"limit":50})
-    global DISPLAY_BUF
-    DISPLAY_BUF = ""
-
-    update_chat_screen()
-
-    # Set up chat update task.
-    asyncio.ensure_future(chat_update_task())
-
-    
-def update_state():
-    if not ib.INPUT_BUFFER.empty():
-        global CHANG
-        global CUR_BUF
-        while not ib.INPUT_BUFFER.empty():
-            global CURSOR
-            if CURSOR == len(CUR_BUF):
-                CURSOR += 1
-                CUR_BUF += ib.INPUT_BUFFER.get(False)
-            else:
-                CUR_BUF = CUR_BUF[0:CURSOR] + ib.INPUT_BUFFER.get(False) + CUR_BUF[CURSOR:]
-        # Set global flag to let all states know we will update screen.
-        CHANG = True
-        cmd.CALLED = True
-    # CHANG = True
-
-def display_state():
-    # Chang is used for chat state internally if someone does input
-    # CHANG is set true. Howvever, if an external state draws, 
-    # we also need to dump our state to display, so cmd.called is also checked.
-    global CHANG
-    if cmd.CALLED:
-        print_buf(DISPLAY_BUF)
-        print_buf("> : " + CUR_BUF[0:CURSOR] + "|" + CUR_BUF[CURSOR:])
 

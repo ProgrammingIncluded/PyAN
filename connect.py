@@ -1,4 +1,12 @@
-# File incharge of establishing connection and communicating with server.
+
+#################################################
+# Project: PyAN
+# File: connect.py
+# By: SuperKaitoKid
+# Website: superkaitokid.github.io
+# Desc: File in charge of establishing connection
+#       to the server.
+#################################################
 
 import asyncio
 import requests

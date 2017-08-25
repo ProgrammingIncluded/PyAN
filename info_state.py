@@ -1,4 +1,12 @@
-# File to hold info_state
+############################################
+# Project: PyAN
+# File: info_state.py
+# By: SuperKaitoKid
+# Website: superkaitokid.github.io
+# Desc: File to hold info state that
+#       displays song information.
+############################################
+
 import chat_state as cs
 import connect as cnt
 import command as cmd

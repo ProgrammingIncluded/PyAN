@@ -1,3 +1,11 @@
+############################################
+# Project: PyAN
+# File: input_buffer.py
+# By: SuperKaitoKid
+# Website: superkaitokid.github.io
+# Desc: File to deal with input.
+###########################################
+
 import command as cmd
 import chat_state as cs
 import queue

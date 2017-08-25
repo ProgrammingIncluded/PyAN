@@ -1,3 +1,10 @@
+############################################
+# Project: PyAN
+# File: main.py
+# By: SuperKaitoKid
+# Website: superkaitokid.github.io
+# Desc: House main.
+############################################
 import connect as cnt
 import info_state as infs
 import chat_state as chat
