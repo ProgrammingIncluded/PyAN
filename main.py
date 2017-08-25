@@ -8,7 +8,6 @@
 import connect as cnt
 import info_state as infs
 import chat_state as chat
-import program_global as pg
 import input_buffer as inp
 import command as cmd
 
@@ -60,8 +59,6 @@ async def main():
                 traceback.print_exc()
                 break
 
-        pg.PROGRAM_CLOSE = True
-        
     listener.join()
 
 if __name__ == '__main__':

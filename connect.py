@@ -44,7 +44,11 @@ def send_get(cmd, param = {}, repeat_time = -1):
 
 
 def send_post(cmd, param, repeat_time = -1):
-    pass
+    json_d = PARAM.copy()
+    json_d["apicall"] = cmd
+    json_d.update(param)
+    print(json_d)
+    return json.loads(requests.post(URL, params = json_d).text)
 
 def parseToken():
     config = configparser.ConfigParser()

@@ -92,14 +92,12 @@ def delete_forward():
         cmd.CALLED = True
 
 # Function to clear the input of the chat state.
-def clear():
+def clear_msg():
     global CURSOR
     global CUR_BUF
     CURSOR = 0
     CUR_BUF = ""
     cmd.CALLED = True
-
-#
 
 
 # Constructor like function to initiate the state. Called only once per state init.
@@ -145,6 +143,16 @@ def display_state():
 ####################################
 # Helper Functions and Subroutines #
 ####################################
+
+
+# Function to send current message buffer and clear it
+def send_msg():
+    cnt.send_post("chatbox", {"message":CUR_BUF})
+    # Clear the message
+    clear_msg()
+
+# Functionc alled by send_msg to send the message asynchronously.
+# async def send_msg_async():
 
 
 # Function to update the chat screen.

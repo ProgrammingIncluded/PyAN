@@ -35,7 +35,7 @@ def on_press(key):
         INPUT_BUFFER.put(" ", False)
         return
     elif key == Key.enter:
-        cs.clear()
+        cs.send_msg()
         return
     elif key == Key.backspace:
         cs.delete_back()
