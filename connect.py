@@ -2,8 +2,8 @@
 #################################################
 # Project: PyAN
 # File: connect.py
-# By: SuperKaitoKid
-# Website: superkaitokid.github.io
+# By: ProgrammingIncluded
+# Website: ProgrammingIncluded.com
 # Desc: File in charge of establishing connection
 #       to the server.
 #################################################

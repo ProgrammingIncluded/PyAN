@@ -2,8 +2,8 @@
 #############################################
 # Project: PyAN
 # File: command.py
-# By: SuperKaitoKid
-# Website: superkaitokid.github.io
+# By: ProgrammingIncluded
+# Website: ProgrammingIncluded.com
 # Desc: File to work with platform dependent
 #       commands.
 #############################################

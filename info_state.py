@@ -1,8 +1,8 @@
 ############################################
 # Project: PyAN
 # File: info_state.py
-# By: SuperKaitoKid
-# Website: superkaitokid.github.io
+# By: ProgrammingIncluded
+# Website: ProgrammingIncluded.com
 # Desc: File to hold info state that
 #       displays song information.
 ############################################

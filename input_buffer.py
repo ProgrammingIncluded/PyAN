@@ -1,8 +1,8 @@
 ############################################
 # Project: PyAN
 # File: input_buffer.py
-# By: SuperKaitoKid
-# Website: superkaitokid.github.io
+# By: ProgrammingIncluded
+# Website: ProgrammingIncluded.com
 # Desc: File to deal with input.
 ###########################################
 

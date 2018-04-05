@@ -1,8 +1,8 @@
 ############################################
 # Project: PyAN
 # File: main.py
-# By: SuperKaitoKid
-# Website: superkaitokid.github.io
+# By: ProgrammingIncluded
+# Website: ProgrammingIncluded.com
 # Desc: House main.
 ############################################
 import connect as cnt

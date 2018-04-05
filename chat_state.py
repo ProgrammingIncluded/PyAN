@@ -1,8 +1,8 @@
 ############################################
 # Project: PyAN
 # File: chat_state.py
-# By: SuperKaitoKid
-# Website: superkaitokid.github.io
+# By: ProgrammingIncluded
+# Website: ProgrammingIncluded.com
 # Desc: File to hold chat screen and logic.
 ############################################
 
